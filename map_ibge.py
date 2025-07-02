@@ -1,10 +1,11 @@
-import os
-import sys
 from pathlib import Path
 
 
-
 ROOT_FOLDER = Path(__file__).parent
-jpg_folder = "jpg"
-new_folder = ROOT_FOLDER / jpg_folder
-new_folder.mkdir(exist_ok= True)
+PDF_FOLDER = ROOT_FOLDER / "pdf"
+JPG_FOLDER = ROOT_FOLDER / "jpg"
+ERROR_FOLDER = ROOT_FOLDER / "erro"
+
+for day_folder in PDF_FOLDER.iterdir():
+    for op_folder in day_folder.iterdir():
+        print(op_folder)
