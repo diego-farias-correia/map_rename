@@ -36,6 +36,7 @@ def street_satellite(path_jpg):
 for day_folder in PDF_FOLDER.iterdir():
     for op_folder in day_folder.iterdir():
         print(op_folder)        
+        
         convert_pdf(str(op_folder))
 
         text = pt.image_to_string(cv.imread(str(JPG_FOLDER / "imagem-2.jpg")))
