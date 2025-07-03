@@ -33,6 +33,7 @@ def street_satellite(path_jpg):
         return 'i'
 
 
+occurrence_list = []
 for day_folder in PDF_FOLDER.iterdir():
     for op_folder in day_folder.iterdir():
         print(op_folder)        
@@ -47,3 +48,14 @@ for day_folder in PDF_FOLDER.iterdir():
         image_type = street_satellite(str(JPG_FOLDER / "imagem-1.jpg"))
 
         new_name_file = f"{geocode}-{image_type}"
+        
+        if new_name_file in occurrence_list:
+            new_name_file = f"{new_name_file}-{occurrence_list.count(new_name_file)}"
+        
+        occurrence_list.append(new_name_file.split('-')[0])
+
+        rename_sintaxe = op_folder.parent / f"{new_name_file}.pdf"
+        op_folder.rename(rename_sintaxe)
+
+for files in JPG_FOLDER.iterdir():
+    files.unlink()
