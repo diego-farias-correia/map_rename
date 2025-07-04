@@ -17,6 +17,8 @@ pt.pytesseract.tesseract_cmd = TESSERACT_PATH
 
 def convert_pdf(path_pdf):
     pdf = convert_from_path(path_pdf, poppler_path=str(POP_PATH))
+    if len(pdf) == 1:
+        return True
     for pag in pdf:
         pag_name = f"imagem-{pdf.index(pag)+1}.jpg"
         pag.save(str(JPG_FOLDER / pag_name), "JPEG")
@@ -33,19 +35,56 @@ def street_satellite(path_jpg):
         return 'i'
 
 
-occurrence_list = []
-for day_folder in PDF_FOLDER.iterdir():
-    for op_folder in day_folder.iterdir():
-        print(op_folder)        
-        
-        convert_pdf(str(op_folder))
+def try_new_angule():
+    original_image = Image.open(str(JPG_FOLDER / "imagem-2.jpg"))
+    hor_image = original_image.resize((2339, 3307)).rotate(-90, expand=True)
+    hor_image.save(str(JPG_FOLDER / "imagem-2.jpg"))
+    original_image.close()
 
-        text = pt.image_to_string(cv.imread(str(JPG_FOLDER / "imagem-2.jpg")))
-        index_gc = text.find(" = ")
-        gc_compose = [text[a_gc] for a_gc in range(index_gc+3, index_gc+18)]
-        
-        geocode = ''.join(gc_compose)
-        image_type = street_satellite(str(JPG_FOLDER / "imagem-1.jpg"))
+
+def try_geocode(compose):
+    if len(compose) == 15:
+        return compose
+    return "Error-name"
+
+
+
+folder_list = list(PDF_FOLDER.iterdir())
+total_folder = len(folder_list)
+
+occurrence_list = []
+for folder_progress, day_folder in enumerate(folder_list, start=1):
+    
+    print(f"Actual progress: {(folder_progress/total_folder)*100}% of folders...")
+    list_file = list(day_folder.iterdir())
+    total_files = len(list_file)
+
+    for pdf_progress, op_folder in enumerate(list_file, start=1):
+
+        print(f"Actual progress: {(pdf_progress/total_files)*100}% of files...")
+
+        white_page = convert_pdf(str(op_folder))
+        if white_page is True:
+            continue
+
+        try:
+            for rotation in range(0, 5):
+
+                text_gc = pt.image_to_string(cv.imread(str(JPG_FOLDER / "imagem-2.jpg")))
+                index_gc = text_gc.find(" = ")
+                gc_compose = [text_gc[d_gc] for d_gc in range(index_gc+3, index_gc+18) if text_gc[d_gc].isnumeric()]
+                geocode = try_geocode(''.join(gc_compose))
+                
+                if geocode != "Error-name":
+                    break
+                try_new_angule()
+
+            image_type = street_satellite(str(JPG_FOLDER / "imagem-1.jpg"))
+            new_name_file = f"{geocode}-{image_type}"
+
+        except IndexError:
+            new_name_file = "Erro-pag2"
+            print("Error in the second page! SCAN IN STANDARD POSITION")
 
         new_name_file = f"{geocode}-{image_type}"
         
