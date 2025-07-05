@@ -83,7 +83,7 @@ for folder_progress, day_folder in enumerate(folder_list, start=1):
             new_name_file = f"{geocode}-{image_type}"
 
         except IndexError:
-            new_name_file = "Erro-pag2"
+            new_name_file = "Error-pag2"
             print("Error in the second page! SCAN IN STANDARD POSITION")
 
         new_name_file = f"{geocode}-{image_type}"

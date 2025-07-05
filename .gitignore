@@ -1,4 +1,7 @@
+env/
 pdf/
 jpg/
 erro/
 operation/
+__pycache__/
+file_exe/
