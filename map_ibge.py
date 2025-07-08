@@ -1,9 +1,11 @@
+import shutil
 import cv2 as cv
 import pytesseract as pt
 from pdf2image import convert_from_path
 from pathlib import Path
 from PIL import Image
 
+import file_map_management
 
 ROOT_FOLDER = Path(__file__).parent
 PDF_FOLDER = ROOT_FOLDER / "pdf"
@@ -95,6 +97,13 @@ for folder_progress, day_folder in enumerate(folder_list, start=1):
 
         rename_sintaxe = op_folder.parent / f"{new_name_file}.pdf"
         op_folder.rename(rename_sintaxe)
+        print(f"The file {new_name_file} has succesfull renamed")
+
+        if new_name_file[:6] == "Error":
+            shutil.move(op_folder.parent / f"{new_name_file}.pdf", ERROR_FOLDER / f"{new_name_file}.pdf")
+            print(f"The error file {new_name_file} is moved to {ERROR_FOLDER}.")
 
 for files in JPG_FOLDER.iterdir():
     files.unlink()
+
+file_map_management
