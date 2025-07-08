@@ -30,9 +30,9 @@ def street_satellite(path_jpg):
         red, blue, green = cv.imread(path_jpg)[cut, 700]
         if red == blue == green:
             count_pxl += 1
-        if count_pxl > 3:
+        if count_pxl > 4:
             return 'm'
-        return 'i'
+    return 'i'
 
 
 def try_new_angule():
