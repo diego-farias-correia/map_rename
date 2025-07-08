@@ -20,7 +20,7 @@ def convert_pdf(path_pdf):
     if len(pdf) == 1:
         return True
     for pag in pdf:
-        pag_name = f"imagem-{pdf.index(pag)+1}.jpg"
+        pag_name = f"image-{pdf.index(pag)+1}.jpg"
         pag.save(str(JPG_FOLDER / pag_name), "JPEG")
 
 
@@ -36,9 +36,9 @@ def street_satellite(path_jpg):
 
 
 def try_new_angule():
-    original_image = Image.open(str(JPG_FOLDER / "imagem-2.jpg"))
+    original_image = Image.open(str(JPG_FOLDER / "image-2.jpg"))
     hor_image = original_image.resize((2339, 3307)).rotate(-90, expand=True)
-    hor_image.save(str(JPG_FOLDER / "imagem-2.jpg"))
+    hor_image.save(str(JPG_FOLDER / "image-2.jpg"))
     original_image.close()
 
 
@@ -70,7 +70,7 @@ for folder_progress, day_folder in enumerate(folder_list, start=1):
         try:
             for rotation in range(0, 5):
 
-                text_gc = pt.image_to_string(cv.imread(str(JPG_FOLDER / "imagem-2.jpg")))
+                text_gc = pt.image_to_string(cv.imread(str(JPG_FOLDER / "image-2.jpg")))
                 index_gc = text_gc.find(" = ")
                 gc_compose = [text_gc[d_gc] for d_gc in range(index_gc+3, index_gc+18) if text_gc[d_gc].isnumeric()]
                 geocode = try_geocode(''.join(gc_compose))
@@ -79,7 +79,7 @@ for folder_progress, day_folder in enumerate(folder_list, start=1):
                     break
                 try_new_angule()
 
-            image_type = street_satellite(str(JPG_FOLDER / "imagem-1.jpg"))
+            image_type = street_satellite(str(JPG_FOLDER / "image-1.jpg"))
             new_name_file = f"{geocode}-{image_type}"
 
         except IndexError:
@@ -107,7 +107,7 @@ for folder_progress, day_folder in enumerate(folder_list, start=1):
 for files in JPG_FOLDER.iterdir():
     files.unlink()
 
-print("Iniciando geração de relatórios...")
+print("Initializing relatory generate...")
 
 import json
 from datetime import date
