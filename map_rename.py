@@ -84,11 +84,9 @@ for folder_progress, day_folder in enumerate(folder_list, start=1):
 
         except IndexError:
             geocode = "Error-pag2"
+            new_name_file = f"{geocode}-"
             print("Error in the second page! SCAN IN STANDARD POSITION")
-
-        new_name_file = f"{geocode}-{image_type}"
-
-
+        
         if new_name_file.split('-')[0] in occurrence_list:
             new_name_file = f"{new_name_file}-{occurrence_list.count(new_name_file.split('-')[0])}"
         
