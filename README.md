@@ -7,7 +7,6 @@
     - Descrição do projeto
 2. Requisitos
     - Funcionais
-    - Não funcionais
     - Dependências
 3. Explicação do código
 
@@ -69,6 +68,28 @@ O map_rename faz as seguintes atribuições a nível de abstração: ele transfo
 
 <p style="text-align: justify;">Com esse novo procedimento adotado o tempo da atividade caiu, pois o código é capaz de renomear 2 mil mapas em 2 horas, o que não era possível para a equipe. Com isso o tempo de trabalho foi reduzido, como com o sistema de digitalização adotado a equipe presencial era capaz de digitalizar em média 2500 mapas e o map_rename era capaz de consumir a produção diária em horas, o processo que duraria de 6 a 8 meses, foi reduzido a um trabalho de 2 meses.<br>
 Sobre o funcionamento do código e a lógica envolvida, seguem na seção explicação do código.<p>
+
+## Requisitos
+
+### Funcionais
+
+- A aplicação deve acessar os arquivos;
+- A aplicação deve conseguir encontrar o código do mapa;
+- A aplicação deve ser capaz de identificar se a imagem é de satélite ou de arruamento;
+- A aplicação deve conseguir alterar o nome dos arquivos PDF; e
+- A aplicação deve conseguir criar um arquivo de relatório ao final no formato CSV, contendo área do mapa, código do mapa, link para a pasta do mapa e em qual célula da planilha está esse código de mapa.
+
+### Dependências
+
+1. Bibiotecas
+    - Shutil - utilizada para fazer a manipulação dos arquivos PDF, movendo-os entre pastas;
+    - OpenCV (cv2) - utilizada para manipular imagens com base nos seus pixels;
+    - Pytesseract - utilizada para reconhecimento de caracteres em imagens;
+    - Pdf2image - utilizado para converter arquivos PDF em arquivos JPG;
+    - Pathlib - utilizada para transformar os caminhos em objetos Path;
+    - Pillow (PIL) - utilizada para utilizar as imagens como objeto PIL.Image.Image, permitindo a manipulação da imagem e, consequentemente, sua rotação;
+    - Json - utilizada para carregar dados de arquivos JSON; e
+    - Datetime - utilizada para gerar um arquivo relatório com base no dia da execução.
 
 ## Explicação do código
 
@@ -190,14 +211,97 @@ Sobre o funcionamento do código e a lógica envolvida, seguem na seção explic
 
 #### Erros
 
+<p style="text-align: justify;">Os erros que podem ocorrer durante a execução desse código derivam de como foi feito o processo de digitalização, esses erros estão descritos abaixo:<p>
+    
+1. <p style="text-align: justify;">Erro de ausência de informação<p>
+    
+    - <p style="text-align: justify;">É um erro que ocorre quando a parte traseira do mapa, a parte que possui as informações, está em branco. Nesse caso é impossível fazer a renomeação e o processo é cancelado. No caso desse erro não é aplicada qualquer nomeação porque o processo vai se dar manualmente e será mais fácil localizar os arquivos, pois estarão entre os arquivos renomeados com o padrão de salvamento da impressora.<br>
+    Como é possível ver abaixo, a variável recebe o retorno da função convert_pdf, e sendo verdadeiro o retorno, o laço de repetição é pulado.<p>
+    
+    ```python
+    def convert_pdf(path_pdf):
+        pdf = convert_from_path(path_pdf, poppler_path=str(POP_PATH))
+        if len(pdf) == 1:
+            return True
+    white_page = convert_pdf(str(op_folder))
+    if white_page is True:
+        continue
+    ```
+2. <p style="text-align: justify;">Erro de nome<p>
+    
+    - <p style="text-align: justify;">É um erro que ocorre quando a posição da digitalização foi invertida ou duas páginas entraram juntas o que faz com que a informação fique dificil de ser obtida, ou mesmo não seja obtida, nesse caso a página deve passar novamente pelo processo de digitalização ou apenas uma checagem e renomeação manual para garantir que o trabalho foi realizado corretamente.<br>
+    Como é possível ver abaixo: se o retorno de  try_geocode permanece sem receber o padrão correto, geocode recebe uma nomeação de erro.<p>
+    ```python
+    def try_geocode(compose):
+        if len(compose) == 15:
+            return compose
+        return "Error-name"
+    gc_compose = [text_gc[d_gc] for d_gc in range(index_gc+3, index_gc+18) if text_gc[d_gc].isnumeric()]
+    geocode = try_geocode(''.join(gc_compose))
+    
+    if geocode != "Error-name":
+        break
+    try_new_angule()
+    ```
 
-
-5. Movendo arquivos com erro
+3. Movendo arquivos com erro
+    - <p style="text-align: justify;">Caso a variável responsável pela renomeação possua, ao final as cinco primeiras letras sendo "Error", então o arquivo com erro é movido para a pasta de erros, para que eles fiquem separados e facilitem na organização de arquivos.<p>
     ```python
     if new_name_file[:5] == "Error":
-        print(str(op_folder.parent / f"{new_name_file}.pdf"))
-        print(str(ERROR_FOLDER / f"{new_name_file}.pdf"))
         shutil.move(op_folder.parent / f"{new_name_file}.pdf", ERROR_FOLDER / f"{new_name_file}.pdf")
     ```
 
 ### Criação de relatório
+
+#### Constantes
+
+1. Constantes
+    - <p style="text-align: justify;">EXE_FOLDER recebe o caminho onde estão os arquivos de apoio para a execução;<p>
+    - <p style="text-align: justify;">RELATORY_FOLDER recebe o caminho para onde os relatórios irão.<p>
+    ```python
+    EXE_FOLDER = ROOT_FOLDER / "files_exe"
+    RELATORY_FOLDER = EXE_FOLDER / "relatory"
+    ```
+
+#### Funções
+
+1. Criação de arquivo
+    - Esta função cria um arquivo com base no nome de entrada.
+    ```python
+    def create_file(name_file=""):
+        with open(str(RELATORY_FOLDER / name_file), 'w'):
+            print(f"The new relatory file {name_file} has created.")    
+    ```
+2. Inserindo os dados
+    - Esta função inserer dados no documento com base em um texto de entrada
+    ```python
+    def insert_file(*args, name_file=""):
+        with open(str(RELATORY_FOLDER / name_file), 'a') as file:
+            for arg in args:
+                file.write(f"{arg}\n")
+    ```
+
+#### Lógica do código
+
+1. criação de um conjunto para geração de relatorio
+    - <p style="text-align: justify;">Esse trecho tem por objetivo criar um conjunto com a lista de ocorrências excluídas as repetições.<p>
+    ```python
+    set_geocode = {geocode[:15] for geocode in occurrence_list if geocode[:5] != "Error"}
+    ```
+2. Mapas de treinamento e mapas oficiais
+    - <p style="text-align: justify;">Esse trecho do código faz distinção para criiar dois relatórios, um para os arquivos oficiais, de prefixo "RELATORY" e outro para os arquivos de treinamento, de prefixo "TRAININGMAP". As listas são criadas com base nos dois primeiros dígitos do código do mapa; a partir dessas duas listas são chamadas as funções de criação e de inserção.<p>
+    ```python
+    training_map = [geocode for geocode in set_geocode if geocode[:2] != '25']
+    csv_list = [dict_base[geocode] for geocode in set_geocode if geocode[:2] == '25']
+
+    rel_name_file = f"RELATORY-{date.today()}.txt"
+    create_file(rel_name_file)
+    insert_file(*csv_list, name_file=rel_name_file)
+
+    if len(training_map)>1:
+        tm_name_file = f"TRAININGMAP-{date.today()}.txt"
+        create_file(tm_name_file)
+        insert_file(*training_map, tm_name_file)
+    ```
+
+## Contato

@@ -66,26 +66,20 @@ for folder_progress, day_folder in enumerate(folder_list, start=1):
         white_page = convert_pdf(str(op_folder))
         if white_page is True:
             continue
+        
+        for rotation in range(0, 5):
 
-        try:
-            for rotation in range(0, 5):
+            text_gc = pt.image_to_string(cv.imread(str(JPG_FOLDER / "image-2.jpg")))
+            index_gc = text_gc.find(" = ")
+            gc_compose = [text_gc[d_gc] for d_gc in range(index_gc+3, index_gc+18) if text_gc[d_gc].isnumeric()]
+            geocode = try_geocode(''.join(gc_compose))
+            
+            if geocode != "Error-name":
+                break
+            try_new_angule()
 
-                text_gc = pt.image_to_string(cv.imread(str(JPG_FOLDER / "image-2.jpg")))
-                index_gc = text_gc.find(" = ")
-                gc_compose = [text_gc[d_gc] for d_gc in range(index_gc+3, index_gc+18) if text_gc[d_gc].isnumeric()]
-                geocode = try_geocode(''.join(gc_compose))
-                
-                if geocode != "Error-name":
-                    break
-                try_new_angule()
-
-            image_type = street_satellite(str(JPG_FOLDER / "image-1.jpg"))
-            new_name_file = f"{geocode}-{image_type}"
-
-        except IndexError:
-            geocode = "Error-pag2"
-            new_name_file = f"{geocode}-"
-            print("Error in the second page! SCAN IN STANDARD POSITION")
+        image_type = street_satellite(str(JPG_FOLDER / "image-1.jpg"))
+        new_name_file = f"{geocode}-{image_type}"
         
         if new_name_file.split('-')[0] in occurrence_list:
             new_name_file = f"{new_name_file}-{occurrence_list.count(new_name_file.split('-')[0])}"
@@ -97,8 +91,6 @@ for folder_progress, day_folder in enumerate(folder_list, start=1):
         print(f"The file {new_name_file} has succesfull renamed")
 
         if new_name_file[:5] == "Error":
-            print(str(op_folder.parent / f"{new_name_file}.pdf"))
-            print(str(ERROR_FOLDER / f"{new_name_file}.pdf"))
             shutil.move(op_folder.parent / f"{new_name_file}.pdf", ERROR_FOLDER / f"{new_name_file}.pdf")
             print(f"The error file {new_name_file} is moved to {ERROR_FOLDER}.")
 
