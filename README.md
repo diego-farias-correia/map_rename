@@ -64,6 +64,7 @@ O map_rename faz as seguintes atribuições a nível de abstração: ele transfo
     - <p style="text-align: justify;">Cria relatório em formato CSV na estrutura: [área do mapa], [código do mapa],[link do mapa],[célula na planilha de controle para o número do mapa];<p>
 
 3. <p style="text-align: justify;">Processo manual<p>
+    
     - <p style="text-align: justify;">Fazer upload dos mapas para o OneDrive.<p>
 
 <p style="text-align: justify;">Com esse novo procedimento adotado o tempo da atividade caiu, pois o código é capaz de renomear 2 mil mapas em 2 horas, o que não era possível para a equipe. Com isso o tempo de trabalho foi reduzido, como com o sistema de digitalização adotado a equipe presencial era capaz de digitalizar em média 2500 mapas e o map_rename era capaz de consumir a produção diária em horas, o processo que duraria de 6 a 8 meses, foi reduzido a um trabalho de 2 meses.<br>
